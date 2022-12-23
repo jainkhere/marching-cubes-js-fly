@@ -12,16 +12,24 @@ let res = 0.5;
 let xSize = 264;
 let ySize = 500;
 let zSize = 1500;
-let increment = 0.04;
+let increment = 1;
 
 let noise;
 
 async function loadNumPyArray() {
   const response = await fetch("./fly.npy");
   const arrayBuffer = await response.arrayBuffer();
-  const array = new Float32Array(arrayBuffer);
+  let array = new Float32Array(arrayBuffer);
 
   return array;
+}
+
+function lerp(start, end, amt) {
+  return (1 - amt) * start + amt * end;
+}
+
+function getState(a, b, c, d, e, f, g, h) {
+  return a * 1 + b * 2 + c * 4 + d * 8 + e * 16 + f * 32 + g * 64 + h * 128;
 }
 
 async function setup() {
@@ -41,11 +49,8 @@ async function setup() {
 
   // TODO check why all_image_np_array is not correct size.
   let all_image_np_array = await loadNumPyArray();
-  const image_array = nj
-    .array(all_image_np_array.slice(0, -32))
-    .reshape(264, 500, 1500);
-
-  // var a = nj.uint8()
+  let new_arr = [...all_image_np_array.slice(128)];
+  const image_array = nj.float32(new_arr).reshape(165, 500, 1500);
 
   console.log(image_array);
 
@@ -230,14 +235,6 @@ function draw() {
   requestAnimationFrame(draw);
 
   renderer.render(scene, camera);
-}
-
-function lerp(start, end, amt) {
-  return (1 - amt) * start + amt * end;
-}
-
-function getState(a, b, c, d, e, f, g, h) {
-  return a * 1 + b * 2 + c * 4 + d * 8 + e * 16 + f * 32 + g * 64 + h * 128;
 }
 
 setup();
